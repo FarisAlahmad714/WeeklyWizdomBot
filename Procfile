@@ -1,1 +1,1 @@
-worker: pip install -r requirements.txt && python bot1.py
+worker: python -c "print('Hello from Python'); import sys; print(sys.version)"
