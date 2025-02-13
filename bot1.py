@@ -30,31 +30,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.info("Logging configured")
 
-# Configuration class to load environment variables
 class Config:
-    try:
-        print("Loading configuration...")
-        API_ID = config('API_ID', cast=int)
-        API_HASH = config('API_HASH')
-        BOT_TOKEN = config('BOT_TOKEN')
-        PHONE_NUMBER = config('PHONE_NUMBER')
-        USER_GROUP_ID = config('USER_GROUP_ID', cast=int)
-        raw_user_ids = config('TARGET_USER_IDS')
-        print(f"Raw TARGET_USER_IDS value: {raw_user_ids}")
-        # Split and clean the IDs
-        user_ids = [id.strip() for id in raw_user_ids.split(',')]
-        # Filter out empty strings and convert to integers
-        TARGET_USER_IDS = [int(id) for id in user_ids if id and id.isdigit()]
-        print(f"Parsed TARGET_USER_IDS: {TARGET_USER_IDS}")
-        NOTIFICATION_TARGET = config('NOTIFICATION_TARGET', cast=int)
-        TIMEZONE = pytz.timezone('US/Pacific')
-        print("Configuration loaded successfully")
-        print(f"Monitoring group: {USER_GROUP_ID}")
-        print(f"Target users: {TARGET_USER_IDS}")
-    except Exception as e:
-        print(f"Configuration error: {str(e)}")
-        logger.error(f"Configuration error: {str(e)}", exc_info=True)
-        raise
+    API_ID = config('API_ID', cast=int)
+    API_HASH = config('API_HASH')
+    BOT_TOKEN = config('BOT_TOKEN')
+    PHONE_NUMBER = config('PHONE_NUMBER')
+    USER_GROUP_ID = config('USER_GROUP_ID', cast=int)
+    TARGET_USER_IDS = [5098858140]  # Simplified to single ID for testing
+    NOTIFICATION_TARGET = config('NOTIFICATION_TARGET', cast=int)
+    TIMEZONE = pytz.timezone('US/Pacific')
 
 # Telegram Monitor class with thread/topic name support
 class TelegramMonitor:
