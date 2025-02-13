@@ -125,50 +125,74 @@ class TelegramMonitor:
         """Handle new messages from the monitored group."""
         try:
             sender = await event.get_sender()
-            if not sender or sender.id not in Config.TARGET_USER_IDS:
+            logger.info(f"New message received from user ID: {sender.id if sender else 'Unknown'}")
+            logger.info(f"Target user IDs: {Config.TARGET_USER_IDS}")
+            
+            if not sender:
+                logger.warning("No sender found for message")
+                return
+                
+            if sender.id not in Config.TARGET_USER_IDS:
+                logger.info(f"Message from {sender.id} ignored - not in target users")
                 return
 
             chat = await event.get_chat()
+            logger.info(f"Message is in chat/group: {chat.id}")
             message_hash = f"{sender.id}:{event.message.id}"
             
             # Prevent duplicate processing of messages
             if message_hash in self.message_cache:
+                logger.info(f"Duplicate message detected: {message_hash}")
                 return
                 
             self.message_cache[message_hash] = datetime.now()
+            logger.info("Formatting message...")
             formatted_message = await self.format_message(event, sender, chat)
 
             # Forward the message to the notification target
+            logger.info(f"Sending message to notification target: {Config.NOTIFICATION_TARGET}")
             await self.bot_client.send_message(
                 Config.NOTIFICATION_TARGET,
                 formatted_message,
                 parse_mode="markdown"
             )
-            logger.info(f"Message forwarded from {getattr(sender, 'username', 'Unknown')}")
+            logger.info(f"Message successfully forwarded from {getattr(sender, 'username', 'Unknown')}")
 
         except Exception as e:
-            logger.error(f"Error handling message: {e}")
+            logger.error(f"Error handling message: {e}", exc_info=True)
+            # Print full traceback for better debugging
+            import traceback
+            logger.error(f"Full traceback: {traceback.format_exc()}")
+                
 
     async def start(self):
         """Start the Telegram monitor."""
         try:
             await self.user_client.start(phone=Config.PHONE_NUMBER)
             await self.bot_client.start(bot_token=Config.BOT_TOKEN)
+            
+            logger.info("Clients started successfully")
+            logger.info(f"Monitoring group ID: {Config.USER_GROUP_ID}")
+            logger.info(f"Target user IDs: {Config.TARGET_USER_IDS}")
+            logger.info(f"Notification target: {Config.NOTIFICATION_TARGET}")
 
-            # Monitor all messages in the group (including specific threads/topics)
             @self.user_client.on(events.NewMessage(chats=Config.USER_GROUP_ID))
             async def message_handler(event):
                 await self.handle_new_message(event)
 
             logger.info("Monitor started successfully")
+            
+            # Test message to notification channel
+            await self.bot_client.send_message(
+                Config.NOTIFICATION_TARGET,
+                "🟢 Bot started and monitoring messages",
+                parse_mode="markdown"
+            )
+            
             await self.user_client.run_until_disconnected()
 
         except Exception as e:
-            logger.error(f"Error starting monitor: {e}")
+            logger.error(f"Error starting monitor: {e}", exc_info=True)
         finally:
             await self.user_client.disconnect()
             await self.bot_client.disconnect()
-
-if __name__ == "__main__":
-    monitor = TelegramMonitor()
-    asyncio.run(monitor.start())
