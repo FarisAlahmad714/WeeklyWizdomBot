@@ -39,7 +39,7 @@ class Config:
         BOT_TOKEN = config('BOT_TOKEN')
         PHONE_NUMBER = config('PHONE_NUMBER')
         USER_GROUP_ID = config('USER_GROUP_ID', cast=int)
-        TARGET_USER_IDS = [int(id.strip()) for id in config('TARGET_USER_IDS').split(',') if id.strip().isdigit()]
+        TARGET_USER_IDS = [int(id.strip().replace('#', '')) for id in config('TARGET_USER_IDS').split(',') if id.strip().replace('#', '').isdigit()]        
         NOTIFICATION_TARGET = config('NOTIFICATION_TARGET', cast=int)
         TIMEZONE = pytz.timezone('US/Pacific')
         print("Configuration loaded successfully")
