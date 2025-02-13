@@ -1,3 +1,4 @@
+print("Bot starting - Railway deployment")
 import asyncio
 from telethon import TelegramClient, events
 from decouple import config
