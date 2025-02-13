@@ -41,8 +41,11 @@ class Config:
         USER_GROUP_ID = config('USER_GROUP_ID', cast=int)
         raw_user_ids = config('TARGET_USER_IDS')
         print(f"Raw TARGET_USER_IDS value: {raw_user_ids}")
-        TARGET_USER_IDS = [int(id.strip()) for id in raw_user_ids.split(',') if id.strip().isdigit()]
-        print(f"Parsed TARGET_USER_IDS: {TARGET_USER_IDS}")        
+        # Split and clean the IDs
+        user_ids = [id.strip() for id in raw_user_ids.split(',')]
+        # Filter out empty strings and convert to integers
+        TARGET_USER_IDS = [int(id) for id in user_ids if id and id.isdigit()]
+        print(f"Parsed TARGET_USER_IDS: {TARGET_USER_IDS}")
         NOTIFICATION_TARGET = config('NOTIFICATION_TARGET', cast=int)
         TIMEZONE = pytz.timezone('US/Pacific')
         print("Configuration loaded successfully")
