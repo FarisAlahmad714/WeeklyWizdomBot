@@ -1,1 +1,1 @@
-worker: python botdebug.py
+worker: pip install -r requirements.txt && python bot1.py
